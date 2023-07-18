@@ -1,4 +1,4 @@
-// create web server for comments
+// create web server
 // using node.js
 
 // set up http server
