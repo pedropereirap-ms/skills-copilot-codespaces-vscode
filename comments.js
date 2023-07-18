@@ -1,39 +1,29 @@
 // create web server
-
-// 1. load modules
+// create web server
 const express = require('express');
-const path = require('path');
 const bodyParser = require('body-parser');
 const app = express();
+const cors = require('cors');
+const port = 4001;
+const comments = require('./comments.json');
 const fs = require('fs');
 
-// 2. set port
-const port = 3000;
+app.use(cors());
+app.use(bodyParser.json());
 
-// 3. set middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// 4. set router
 app.get('/comments', (req, res) => {
-    res.sendFile(path.join(__dirname, 'comments.html'));
+  res.json(comments);
 });
 
 app.post('/comments', (req, res) => {
-    const comment = req.body.comment;
-    const date = req.body.date;
-    const ip = req.body.ip;
-    const file = path.join(__dirname, 'comments.txt');
-
-    fs.appendFile(file, `[${date}] ${ip} : ${comment}\n`, (err) => {
-        if (err) {
-            console.log(err);
-            res.status(500).send('Internal Server Error');
-        }
-        res.redirect('/comments');
-    });
+  const newComment = req.body;
+  newComment.id = comments.length + 1;
+  comments.push(newComment);
+  fs.writeFile('./comments.json', JSON.stringify(comments), () => {
+    res.json(comments);
+  });
 });
 
-// 5. start server
 app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
+  console.log(`Server started on port ${port}`);
 });
